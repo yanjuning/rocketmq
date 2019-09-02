@@ -73,6 +73,7 @@ public class NamesrvController {
         this.configuration.setStorePathFromConfig(this.namesrvConfig, "configStorePath");
     }
 
+    // 初始化
     public boolean initialize() {
 
         this.kvConfigManager.load();

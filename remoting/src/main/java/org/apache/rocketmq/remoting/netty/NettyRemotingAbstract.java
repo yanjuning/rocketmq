@@ -136,7 +136,7 @@ public abstract class NettyRemotingAbstract {
 
     /**
      * Entry of incoming command processing.
-     *
+     * 根据请求类型将请求分发给对应的处理器
      * <p>
      * <strong>Note:</strong>
      * The incoming remoting command may be
@@ -195,6 +195,7 @@ public abstract class NettyRemotingAbstract {
         final int opaque = cmd.getOpaque();
 
         if (pair != null) {
+            // 处理请求，不在新线程中执行，调用时仅仅执行 run 方法
             Runnable run = new Runnable() {
                 @Override
                 public void run() {

@@ -140,19 +140,20 @@ public class PullAPIWrapper {
     }
 
     public PullResult pullKernelImpl(
-        final MessageQueue mq,
-        final String subExpression,
-        final String expressionType,
-        final long subVersion,
-        final long offset,
-        final int maxNums,
-        final int sysFlag,
-        final long commitOffset,
-        final long brokerSuspendMaxTimeMillis,
-        final long timeoutMillis,
-        final CommunicationMode communicationMode,
-        final PullCallback pullCallback
+        final MessageQueue mq,      // 拉取消息的队列 pullRequest.getMessageQueue()
+        final String subExpression, // SubscriptionData.subExpression
+        final String expressionType,// SubscriptionData.TAG
+        final long subVersion,      // 时间戳
+        final long offset,          // 偏移量 pullRequest.getNextOffset()
+        final int maxNums,          // 最大一次拉取消息数量 DefaultMQPushConsumer.pullBatchSize = 32
+        final int sysFlag,          // todo PullSysFlag
+        final long commitOffset,    // todo 进度管理
+        final long brokerSuspendMaxTimeMillis,      // 1000 * 15
+        final long timeoutMillis,                   // 1000 * 30
+        final CommunicationMode communicationMode,  // CommunicationMode.ASYNC/SYNC
+        final PullCallback pullCallback             // 回调
     ) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+        // 根据MQ的brokerName和brorkerId，在brokerAddrList中获取broker master和slave地址
         FindBrokerResult findBrokerResult =
             this.mQClientFactory.findBrokerAddressInSubscribe(mq.getBrokerName(),
                 this.recalculatePullFromWhichNode(mq), false);

@@ -44,6 +44,10 @@ public class MQClientManager {
         return getAndCreateMQClientInstance(clientConfig, null);
     }
 
+    /**
+     * ip@instanceName@unitName，默认ip@pid
+     * 如果不设置instanceName或者unitName，那么同一应用（PID）共享MQClientInstance实例，否则创建新的MQClientInstance实例
+     */
     public MQClientInstance getAndCreateMQClientInstance(final ClientConfig clientConfig, RPCHook rpcHook) {
         String clientId = clientConfig.buildMQClientId();
         MQClientInstance instance = this.factoryTable.get(clientId);

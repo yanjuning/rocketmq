@@ -238,6 +238,11 @@ public abstract class RebalanceImpl {
         return subscriptionInner;
     }
 
+    /**
+     * 对所有客户端 cidAll 和所有 mqAll排序，使所有的消费者拥有相同的 cidAll和mqAll视图，这样应用负载均衡时得到的是相同的结果
+     * @param topic
+     * @param isOrder
+     */
     private void rebalanceByTopic(final String topic, final boolean isOrder) {
         switch (messageModel) {
             case BROADCASTING: {

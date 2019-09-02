@@ -20,6 +20,7 @@ import org.apache.rocketmq.common.message.MessageQueue;
 
 /**
  * Consumer concurrent consumption context
+ * @see MessageStoreConfig#messageDelayLevel
  */
 public class ConsumeConcurrentlyContext {
     private final MessageQueue messageQueue;

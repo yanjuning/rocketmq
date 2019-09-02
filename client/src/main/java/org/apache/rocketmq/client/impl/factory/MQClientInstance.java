@@ -92,7 +92,9 @@ public class MQClientInstance {
     private final int instanceIndex;
     private final String clientId;
     private final long bootTimestamp = System.currentTimeMillis();
+    /* 以生产者组名称为健值的消费者hash表 */
     private final ConcurrentMap<String/* group */, MQProducerInner> producerTable = new ConcurrentHashMap<String, MQProducerInner>();
+    /* 以消费者组名称为健值的消费者hash表 */
     private final ConcurrentMap<String/* group */, MQConsumerInner> consumerTable = new ConcurrentHashMap<String, MQConsumerInner>();
     private final ConcurrentMap<String/* group */, MQAdminExtInner> adminExtTable = new ConcurrentHashMap<String, MQAdminExtInner>();
     private final NettyClientConfig nettyClientConfig;
@@ -142,11 +144,11 @@ public class MQClientInstance {
         this.clientId = clientId;
 
         this.mQAdminImpl = new MQAdminImpl(this);
-
+        // 拉取消息服务
         this.pullMessageService = new PullMessageService(this);
-
+        // 平衡负载服务
         this.rebalanceService = new RebalanceService(this);
-
+        // 实例下一个默认的消息生产者，发送客户端统计信息到 broker
         this.defaultMQProducer = new DefaultMQProducer(MixAll.CLIENT_INNER_PRODUCER_GROUP);
         this.defaultMQProducer.resetClientConfig(clientConfig);
 
@@ -237,11 +239,11 @@ public class MQClientInstance {
                     this.mQClientAPIImpl.start();
                     // Start various schedule tasks
                     this.startScheduledTask();
-                    // Start pull service
+                    // Start pull service 启动
                     this.pullMessageService.start();
                     // Start rebalance service
                     this.rebalanceService.start();
-                    // Start push service
+                    // Start push service 默认的消息生产者，一个客户端至少有一个消息生产者
                     this.defaultMQProducer.getDefaultMQProducerImpl().start(false);
                     log.info("the client factory [{}] start OK", this.clientId);
                     this.serviceState = ServiceState.RUNNING;
@@ -258,6 +260,13 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * 启动各种定时任务
+     * 1. 更新namesrv地址集合
+     * 2. 更新主题路由信息
+     * 3. 清除离线broker并发送心跳给所有broker
+     * 4. 持久化消费进度-offset
+     */
     private void startScheduledTask() {
         if (null == this.clientConfig.getNamesrvAddr()) {
             this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
@@ -303,6 +312,7 @@ public class MQClientInstance {
             @Override
             public void run() {
                 try {
+                    // 目前实现为空
                     MQClientInstance.this.persistAllConsumerOffset();
                 } catch (Exception e) {
                     log.error("ScheduledTask persistAllConsumerOffset exception", e);

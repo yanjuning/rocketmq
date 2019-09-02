@@ -49,7 +49,9 @@ import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 import org.apache.rocketmq.remoting.netty.NettyRequestProcessor;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
-
+/**
+ * TODO 客户端接收的请求处理逻辑
+ */
 public class ClientRemotingProcessor implements NettyRequestProcessor {
     private final InternalLogger log = ClientLogger.getLog();
     private final MQClientInstance mqClientFactory;
@@ -58,6 +60,13 @@ public class ClientRemotingProcessor implements NettyRequestProcessor {
         this.mqClientFactory = mqClientFactory;
     }
 
+    /**
+     * 'request'名称可能一定的误导性，broker通过client和broker建立的channel，向client发送消息，TCP全双工
+     * @param ctx
+     * @param request
+     * @return
+     * @throws RemotingCommandException
+     */
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
