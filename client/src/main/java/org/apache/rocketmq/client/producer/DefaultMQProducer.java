@@ -64,6 +64,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
 
     /**
      * Wrapping internal implementations for virtually all methods presented in this class.
+     * DefaultMQProducer类中实质上的方法实现
      */
     protected final transient DefaultMQProducerImpl defaultMQProducerImpl;
 
@@ -281,6 +282,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      */
     @Override
     public void start() throws MQClientException {
+        // ProducerGroup默认会用Namespace装饰: namespace%producergroup
         this.setProducerGroup(withNamespace(this.producerGroup));
         this.defaultMQProducerImpl.start();
         if (null != traceDispatcher) {

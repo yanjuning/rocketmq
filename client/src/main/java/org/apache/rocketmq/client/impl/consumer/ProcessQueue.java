@@ -53,6 +53,9 @@ public class ProcessQueue {
      */
     private final TreeMap<Long, MessageExt> consumingMsgOrderlyTreeMap = new TreeMap<Long, MessageExt>();
     private final AtomicLong tryUnlockTimes = new AtomicLong(0);
+    /**
+     * 队列消息最大 Offset， todo
+     */
     private volatile long queueOffsetMax = 0L;
     private volatile boolean dropped = false;
     private volatile long lastPullTimestamp = System.currentTimeMillis();
@@ -181,6 +184,13 @@ public class ProcessQueue {
         return 0;
     }
 
+    /**
+     * 删除视图队列中已经被消费的消息
+     * 1. 如果视图队列为空，返回视图队列的消息最大偏移
+     * 2. 如果视图队列不为空，返回视图队列中的最小KEY（消息偏移量）
+     * @param msgs
+     * @return
+     */
     public long removeMessage(final List<MessageExt> msgs) {
         long result = -1;
         final long now = System.currentTimeMillis();

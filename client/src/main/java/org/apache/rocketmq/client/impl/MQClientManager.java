@@ -31,7 +31,7 @@ public class MQClientManager {
     private AtomicInteger factoryIndexGenerator = new AtomicInteger();
     private ConcurrentMap<String/* clientId */, MQClientInstance> factoryTable =
         new ConcurrentHashMap<String, MQClientInstance>();
-
+    /** clientId: ip@instanceName(default pid)@unitName(default null)*/
     private MQClientManager() {
 
     }

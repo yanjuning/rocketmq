@@ -85,6 +85,10 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.apache.rocketmq.remoting.netty.NettyClientConfig;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * 如果不设置instanceName或者unitName，那么同一应用（PID）共享MQClientInstance实例，否则创建新的MQClientInstance实例
+ * {@link MQClientManager#getAndCreateMQClientInstance(ClientConfig, RPCHook)}
+ */
 public class MQClientInstance {
     private final static long LOCK_TIMEOUT_MILLIS = 3000;
     private final InternalLogger log = ClientLogger.getLog();
@@ -92,9 +96,9 @@ public class MQClientInstance {
     private final int instanceIndex;
     private final String clientId;
     private final long bootTimestamp = System.currentTimeMillis();
-    /* 以生产者组名称为健值的消费者hash表 */
+    /** 以生产者组名称为健值的消费者hash表 */
     private final ConcurrentMap<String/* group */, MQProducerInner> producerTable = new ConcurrentHashMap<String, MQProducerInner>();
-    /* 以消费者组名称为健值的消费者hash表 */
+    /** 以消费者组名称为健值的消费者hash表 */
     private final ConcurrentMap<String/* group */, MQConsumerInner> consumerTable = new ConcurrentHashMap<String, MQConsumerInner>();
     private final ConcurrentMap<String/* group */, MQAdminExtInner> adminExtTable = new ConcurrentHashMap<String, MQAdminExtInner>();
     private final NettyClientConfig nettyClientConfig;
@@ -137,7 +141,7 @@ public class MQClientInstance {
         this.mQClientAPIImpl = new MQClientAPIImpl(this.nettyClientConfig, this.clientRemotingProcessor, rpcHook, clientConfig);
 
         if (this.clientConfig.getNamesrvAddr() != null) {
-            this.mQClientAPIImpl.updateNameServerAddressList(this.clientConfig.getNamesrvAddr());
+            this.mQClientAPIImpl.updateNameServerAddressList(this.clientConfig.getNamesrvAddr()); // 初始化NameServer列表
             log.info("user specified name server address: {}", this.clientConfig.getNamesrvAddr());
         }
 
@@ -224,7 +228,7 @@ public class MQClientInstance {
 
         return mqList;
     }
-
+    /** 启动Netty客户端、各类定时任务、拉取消息服务、consumer均衡服务*/
     public void start() throws MQClientException {
 
         synchronized (this) {
@@ -702,7 +706,7 @@ public class MQClientInstance {
 
         return false;
     }
-
+    /**心跳包：{"clientID":"172.28.73.36@40736","consumerDataSet":[],"producerDataSet":[{"groupName":"ProducerGroupName"},{"groupName":"CLIENT_INNER_PRODUCER"}]} */
     private HeartbeatData prepareHeartbeatData() {
         HeartbeatData heartbeatData = new HeartbeatData();
 

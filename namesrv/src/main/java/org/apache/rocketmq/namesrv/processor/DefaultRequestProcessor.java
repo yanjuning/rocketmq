@@ -100,6 +100,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
                 }
             case RequestCode.UNREGISTER_BROKER:
                 return this.unregisterBroker(ctx, request);
+            // 生产者/消费者获取路由信息
             case RequestCode.GET_ROUTEINTO_BY_TOPIC:
                 return this.getRouteInfoByTopic(ctx, request);
             case RequestCode.GET_BROKER_CLUSTER_INFO:

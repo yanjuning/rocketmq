@@ -104,7 +104,9 @@ public class DefaultMQProducerImpl implements MQProducerInner {
 
     private MQFaultStrategy mqFaultStrategy = new MQFaultStrategy();
 
+    /**异步发送任务队列的最大长度，同时最大允许的异步发送任务为：5W队列任务+getRuntime().availableProcessors默认线程池最大线程数大小*/
     private final BlockingQueue<Runnable> asyncSenderThreadPoolQueue;
+    /**默认的异步发送线程池*/
     private final ExecutorService defaultAsyncSenderExecutor;
     private ExecutorService asyncSenderExecutor;
 
@@ -169,6 +171,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
         this.start(true);
     }
 
+    /** 对比 {@link org.apache.rocketmq.client.impl.consumer.DefaultMQPushConsumerImpl */
     public void start(final boolean startFactory) throws MQClientException {
         switch (this.serviceState) {
             case CREATE_JUST:
@@ -179,9 +182,9 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                 if (!this.defaultMQProducer.getProducerGroup().equals(MixAll.CLIENT_INNER_PRODUCER_GROUP)) {
                     this.defaultMQProducer.changeInstanceNameToPID();
                 }
-
+                /** MQClientInstance类管理Producer和Consumer客户端实例 */
                 this.mQClientFactory = MQClientManager.getInstance().getAndCreateMQClientInstance(this.defaultMQProducer, rpcHook);
-
+                /** 将 this实例注册到 {@link MQClientInstance#producerTable} 中 */
                 boolean registerOK = mQClientFactory.registerProducer(this.defaultMQProducer.getProducerGroup(), this);
                 if (!registerOK) {
                     this.serviceState = ServiceState.CREATE_JUST;
@@ -663,6 +666,12 @@ public class DefaultMQProducerImpl implements MQProducerInner {
             null).setResponseCode(ClientErrorCode.NOT_FOUND_TOPIC_EXCEPTION);
     }
 
+    /**
+     * 发送消息前，根据主题名称获取主题的路由信息，才能知道消息要发送的目的broker的对应队列
+     * todo autoCreateTopic
+     * @param topic
+     * @return
+     */
     private TopicPublishInfo tryToFindTopicPublishInfo(final String topic) {
         TopicPublishInfo topicPublishInfo = this.topicPublishInfoTable.get(topic);
         if (null == topicPublishInfo || !topicPublishInfo.ok()) {

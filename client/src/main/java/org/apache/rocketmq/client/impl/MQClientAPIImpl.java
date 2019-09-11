@@ -179,6 +179,20 @@ public class MQClientAPIImpl {
     private String nameSrvAddr = null;
     private ClientConfig clientConfig;
 
+    /**
+     * 1. 初始化Netty客户端
+     * 2. 注册请求的处理器，客户端主要处理以下请求
+     * CHECK_TRANSACTION_STATE：broker回查事务消息状态
+     * NOTIFY_CONSUMER_IDS_CHANGED：broker通知消费者IDS变化（consumer上下线），然后执行rebalance
+     * RESET_CONSUMER_CLIENT_OFFSET：
+     * GET_CONSUMER_STATUS_FROM_CLIENT：
+     * GET_CONSUMER_RUNNING_INFO：
+     * CONSUME_MESSAGE_DIRECTLY：
+     * @param nettyClientConfig
+     * @param clientRemotingProcessor
+     * @param rpcHook
+     * @param clientConfig
+     */
     public MQClientAPIImpl(final NettyClientConfig nettyClientConfig,
                            final ClientRemotingProcessor clientRemotingProcessor,
                            RPCHook rpcHook, final ClientConfig clientConfig) {
